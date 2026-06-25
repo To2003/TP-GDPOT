@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnóstico Organizacional — Industria Tecnocar S.A.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --ink:#1B2730;
+    --paper:#EFF1EF;
+    --card:#FFFFFF;
+    --line:#D4DAD8;
+    --text:#243038;
+    --muted:#5C6B74;
+    --dark-text:#E9EDEA;
+    --dark-muted:rgba(233,237,234,.6);
+    --orange:#D96C2C;   /* correctivo · alerta */
+    --blue:#35648F;     /* preventivo */
+    --teal:#16766B;     /* estratégico */
+    --plum:#7A4E8C;     /* solución */
+    --display:'Barlow Condensed','Arial Narrow',sans-serif;
+    --body:'Barlow',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--body);
+    background:var(--paper);
+    color:var(--text);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  b,strong{font-weight:600}
+
+  /* ============ DECK / SLIDES ============ */
+  .deck{position:fixed;inset:0}
+  .slide{
+    position:absolute;inset:0;
+    background:var(--paper);
+    display:flex;
+    opacity:0;visibility:hidden;
+    transform:translateY(14px);
+    transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s;
+  }
+  .slide.active{
+    opacity:1;visibility:visible;transform:none;z-index:1;
+    transition:opacity .45s ease,transform .45s ease;
+  }
+  .slide.dark{background:var(--ink);color:var(--dark-text)}
+  .slide-inner{
+    margin:auto;
+    width:min(1200px,100%);
+    max-height:100%;
+    overflow-y:auto;
+    padding:clamp(22px,4.5vh,52px) clamp(22px,5vw,64px) clamp(84px,12vh,108px);
+  }
+
+  /* ============ TIPOGRAFÍA BASE ============ */
+  .kicker{
+    font-family:var(--mono);
+    font-size:11px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;
+    color:var(--orange);
+  }
+  .shead{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:16px;flex-wrap:wrap;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:12px;
+    margin-bottom:clamp(16px,3vh,26px);
+  }
+  .shead-l{display:flex;align-items:baseline;gap:14px}
+  .shead .num{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(28px,4vw,42px);line-height:1;
+    color:var(--orange);
+  }
+  .shead h2{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(24px,3.6vw,38px);line-height:1;
+    letter-spacing:.03em;text-transform:uppercase;
+    color:var(--ink);
+  }
+  .shead-note{
+    font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);padding-bottom:4px;
+  }
+  .card{background:var(--card);border:1px solid var(--line)}
+  .hl{font-style:normal;color:var(--orange)}
+
+  /* ============ CARÁTULA ============ */
+  .cover-title{
+    font-family:var(--display);font-weight:700;text-transform:uppercase;
+    font-size:clamp(54px,10.5vw,124px);
+    line-height:.92;letter-spacing:.005em;
+    margin:14px 0 10px;
+  }
+  .cover-sub{
+    font-family:var(--display);font-weight:600;text-transform:uppercase;
+    font-size:clamp(20px,3.4vw,36px);letter-spacing:.04em;
+    color:var(--orange);
+  }
+  .cover-tag{
+    margin-top:10px;max-width:62ch;
+    font-size:clamp(14px,1.6vw,17px);line-height:1.5;
+    color:var(--dark-muted);
+  }
+  .stripe{
+    margin:clamp(20px,3.5vh,30px) 0;
+    height:12px;width:min(260px,45%);
+    background:repeating-linear-gradient(-45deg,var(--orange) 0 10px,transparent 10px 20px);
+  }
+  .facts{
+    display:flex;flex-wrap:wrap;
+    gap:clamp(18px,4vw,52px);
+    margin:4px 0 clamp(26px,5vh,44px);
+  }
+  .fact b{
+    display:block;font-family:var(--display);font-weight:700;
+    font-size:clamp(28px,4vw,46px);line-height:1;color:var(--dark-text);
+  }
+  .fact span{
+    font-family:var(--mono);font-size:10px;
+    letter-spacing:.16em;text-transform:uppercase;
+    color:var(--dark-muted);
+  }
+  .credits{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:14px 22px;
+    border-top:1px solid rgba(233,237,234,.18);
+    padding-top:18px;
+  }
+  .credit span{
+    font-family:var(--mono);font-size:10px;
+    letter-spacing:.16em;text-transform:uppercase;
+    color:var(--dark-muted);
+  }
+  .credit p{margin-top:5px;font-size:14px;line-height:1.45;color:var(--dark-text)}
+  .hint{
+    margin-top:18px;
+    font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.08em;color:var(--dark-muted);
+  }
+
+  /* ============ INTRODUCCIÓN ============ */
+  .intro-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:18px}
+  .intro-col{display:flex;flex-direction:column;gap:18px}
+  .intro-col .panel{flex:1}
+  .panel{padding:clamp(16px,2.4vw,26px)}
+  .panel h3{
+    font-family:var(--display);font-weight:600;
+    font-size:18px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink);
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:12px;
+  }
+  .panel h3::before{content:'';width:11px;height:11px;flex:none}
+  .p-ink h3::before{background:var(--ink)}
+  .p-orange h3::before{background:var(--orange)}
+  .p-teal h3::before{background:var(--teal)}
+  .panel p{font-size:15px;line-height:1.6}
+  .bignum{display:flex;align-items:baseline;gap:14px;margin:18px 0 4px}
+  .bignum b{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(44px,5vw,60px);line-height:1;color:var(--ink);
+  }
+  .bignum span{
+    font-family:var(--mono);font-size:10px;line-height:1.6;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);max-width:26ch;
+  }
+  .units{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+  .unit{
+    display:flex;align-items:center;gap:9px;
+    font-size:13px;
+    border:1px solid var(--line);background:var(--paper);
+    padding:8px 11px;
+  }
+  .unit::before{content:'';width:7px;height:7px;background:var(--ink);flex:none}
+
+  /* ============ DIAGNÓSTICO ============ */
+  .thesis{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(30px,4.6vw,52px);line-height:1.04;
+    margin:4px 0 12px;color:var(--ink);
+  }
+  .thesis-sub{max-width:80ch;font-size:15.5px;line-height:1.6;color:var(--muted);margin-bottom:clamp(16px,3vh,24px)}
+  .contrast{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .con{padding:clamp(14px,2vw,22px)}
+  .con h4{
+    font-family:var(--mono);font-size:11px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;
+    padding-bottom:9px;margin-bottom:6px;
+  }
+  .con-up h4{color:var(--ink);border-bottom:2px solid var(--ink)}
+  .con-down h4{color:var(--orange);border-bottom:2px solid var(--orange)}
+  .con li{
+    list-style:none;font-size:14.5px;line-height:1.5;
+    padding:9px 0;border-bottom:1px dashed var(--line);
+  }
+  .con li:last-child{border-bottom:none;padding-bottom:2px}
+  .con li b{color:var(--ink)}
+  .syscons{
+    margin-top:16px;
+    background:var(--ink);color:var(--dark-text);
+    padding:14px 18px;font-size:15px;line-height:1.55;
+  }
+  .syscons b{color:var(--orange)}
+
+  /* ============ PROBLEMAS ============ */
+  .findings{display:grid;gap:10px}
+  .finding{
+    display:grid;grid-template-columns:74px 1.15fr 1fr;gap:18px;
+    background:var(--card);
+    border:1px solid var(--line);border-left:4px solid var(--orange);
+    padding:13px 18px;align-items:start;
+  }
+  .f-code{
+    font-family:var(--mono);font-size:13px;font-weight:600;
+    color:var(--orange);padding-top:3px;
+  }
+  .f-body h3{
+    font-family:var(--display);font-weight:600;
+    font-size:17.5px;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--ink);margin-bottom:4px;
+  }
+  .f-body p{font-size:14px;line-height:1.5;color:var(--muted)}
+  .f-impact{border-left:1px solid var(--line);padding-left:18px}
+  .f-impact .lab{
+    display:block;
+    font-family:var(--mono);font-size:9.5px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;
+    color:var(--orange);margin-bottom:5px;
+  }
+  .f-impact p{font-size:14px;line-height:1.5}
+
+  /* ============ PROPUESTAS ============ */
+  .goal{
+    display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    background:var(--card);
+    border:1px solid var(--line);border-left:4px solid var(--teal);
+    padding:13px 18px;margin-bottom:16px;
+    font-size:15px;line-height:1.5;
+  }
+  .goal b{color:var(--teal)}
+  .ejes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+  .eje-head{
+    display:flex;align-items:baseline;gap:11px;
+    padding:14px 16px 11px;
+    border-bottom:2px solid var(--ink);
+  }
+  .eje-num{
+    font-family:var(--display);font-weight:700;
+    font-size:25px;line-height:1;color:var(--orange);
+  }
+  .eje-head h3{
+    font-family:var(--display);font-weight:600;
+    font-size:17px;line-height:1.1;letter-spacing:.03em;text-transform:uppercase;
+    color:var(--ink);
+  }
+  .eje-acts{padding:4px 16px 13px}
+  .act{padding:11px 0;border-bottom:1px dashed var(--line)}
+  .act:last-child{border-bottom:none;padding-bottom:3px}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:var(--mono);font-size:9.5px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .chip::before{content:'';width:9px;height:9px;background:currentColor;flex:none}
+  .c-cor{color:var(--orange)}
+  .c-pre{color:var(--blue)}
+  .c-est{color:var(--teal)}
+  .c-sol{color:var(--plum)}
+  .act p{font-size:14px;line-height:1.5;color:var(--text)}
+  .legend{
+    margin-top:15px;
+    display:flex;flex-wrap:wrap;gap:9px 20px;align-items:center;
+  }
+  .legend .lt{
+    font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  }
+  .legend .chip{margin-bottom:0}
+
+  /* ============ PLAN DE ACCIÓN ============ */
+  .plan-intro{max-width:86ch;font-size:15px;line-height:1.55;color:var(--muted);margin-bottom:14px}
+  .tl{margin-bottom:18px}
+  .tl-bar{display:grid;grid-template-columns:25% 25% 50%;gap:3px;height:13px}
+  .tl-bar i{display:block}
+  .tl-marks{
+    display:grid;grid-template-columns:25% 25% 50%;gap:3px;
+    margin-top:6px;
+    font-family:var(--mono);font-size:9.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  }
+  .tl-marks em{font-style:normal}
+  .tl-marks .last{display:flex;justify-content:space-between}
+  .bg1{background:var(--orange)}
+  .bg2{background:var(--blue)}
+  .bg3{background:var(--teal)}
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+  .phase{border-top:6px solid var(--line)}
+  .ph1{border-top-color:var(--orange)}
+  .ph2{border-top-color:var(--blue)}
+  .ph3{border-top-color:var(--teal)}
+  .phase-head{padding:13px 16px 9px}
+  .ph-k{
+    display:block;
+    font-family:var(--mono);font-size:10px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px;
+  }
+  .ph1 .ph-k{color:var(--orange)}
+  .ph2 .ph-k{color:var(--blue)}
+  .ph3 .ph-k{color:var(--teal)}
+  .phase-head h3{
+    font-family:var(--display);font-weight:600;
+    font-size:19px;line-height:1.1;letter-spacing:.02em;text-transform:uppercase;
+    color:var(--ink);
+  }
+  .phase ul{list-style:none;padding:2px 16px 13px}
+  .phase li{
+    font-size:14px;line-height:1.5;
+    padding:9px 0;border-bottom:1px dashed var(--line);
+  }
+  .phase li:last-child{border-bottom:none;padding-bottom:3px}
+  .phase li b{display:block;color:var(--ink);margin-bottom:1px}
+
+  /* ============ CIERRE ============ */
+  .end-title{
+    font-family:var(--display);font-weight:700;text-transform:uppercase;
+    font-size:clamp(40px,7.5vw,92px);line-height:.95;letter-spacing:.005em;
+    margin:14px 0 18px;max-width:14em;
+  }
+  .end-sub{max-width:64ch;font-size:clamp(15px,1.8vw,18px);line-height:1.6;color:var(--dark-muted)}
+  .end-thanks{
+    margin-top:clamp(22px,4vh,34px);
+    font-family:var(--mono);font-size:13px;font-weight:500;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--dark-text);
+  }
+  .end-foot{
+    margin-top:clamp(26px,5vh,46px);
+    border-top:1px solid rgba(233,237,234,.18);padding-top:16px;
+    font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--dark-muted);
+  }
+
+  /* ============ HUD / NAVEGACIÓN ============ */
+  .progress{
+    position:fixed;top:0;left:0;height:3px;width:0%;
+    background:var(--orange);z-index:60;
+    transition:width .35s ease;
+  }
+  .hud{
+    position:fixed;left:clamp(16px,3vw,32px);bottom:17px;z-index:40;
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    color:var(--muted);
+    display:flex;gap:12px;align-items:baseline;
+  }
+  .hud b{color:var(--ink);font-weight:600}
+  .hud .sec{text-transform:uppercase;letter-spacing:.16em;font-size:10px}
+  .dots{
+    position:fixed;left:50%;bottom:21px;transform:translateX(-50%);
+    display:flex;gap:9px;z-index:40;
+  }
+  .dot{
+    width:9px;height:9px;padding:0;
+    background:transparent;border:1px solid var(--muted);
+    cursor:pointer;
+  }
+  .dot.active{background:var(--orange);border-color:var(--orange)}
+  .navbtns{
+    position:fixed;right:clamp(16px,3vw,32px);bottom:12px;z-index:40;
+    display:flex;gap:8px;
+  }
+  .nb{
+    width:40px;height:40px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--card);border:1px solid var(--ink);color:var(--ink);
+    font-size:17px;cursor:pointer;
+  }
+  .nb:hover{background:var(--ink);color:#fff}
+  .nb:focus-visible,.dot:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+  body.on-dark .hud{color:var(--dark-muted)}
+  body.on-dark .hud b{color:var(--dark-text)}
+  body.on-dark .dot{border-color:rgba(233,237,234,.45)}
+  body.on-dark .dot.active{background:var(--orange);border-color:var(--orange)}
+  body.on-dark .nb{background:transparent;border-color:rgba(233,237,234,.5);color:var(--dark-text)}
+  body.on-dark .nb:hover{background:var(--dark-text);color:var(--ink)}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:980px){
+    .ejes,.phases{grid-template-columns:1fr}
+    .dots{display:none}
+  }
+  @media (max-width:860px){
+    .intro-grid,.contrast{grid-template-columns:1fr}
+    .finding{grid-template-columns:1fr}
+    .f-code{padding-top:0}
+    .f-impact{border-left:none;padding-left:0;border-top:1px dashed var(--line);padding-top:10px}
+    .credits{grid-template-columns:repeat(2,1fr)}
+    .units{grid-template-columns:1fr}
+  }
+
+  /* ============ ACCESIBILIDAD / IMPRESIÓN ============ */
+  @media (prefers-reduced-motion:reduce){
+    .slide,.progress{transition:none}
+  }
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body{overflow:visible}
+    .progress,.hud,.dots,.navbtns,.hint{display:none!important}
+    .deck{position:static}
+    .slide{
+      position:relative;inset:auto;
+      opacity:1!important;visibility:visible!important;transform:none!important;
+      break-after:page;page-break-after:always;
+      min-height:100vh;
+    }
+    .slide-inner{max-height:none;overflow:visible;padding-bottom:clamp(22px,4.5vh,52px)}
+  }
+  @page{size:297mm 167mm;margin:0}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<main class="deck" id="deck">
+
+  <!-- ====== 1 · CARÁTULA ====== -->
+  <section class="slide dark" data-name="Carátula" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <p class="kicker">Trabajo práctico · Gestión de Recursos Humanos</p>
+      <h1 class="cover-title">Diagnóstico<br>organizacional</h1>
+      <p class="cover-sub">Industria Tecnocar S.A.</p>
+      <p class="cover-tag">Fabricación y comercialización de pequeños electrodomésticos · Argentina · Informe de consultoría sobre la gestión del capital humano.</p>
+      <div class="stripe" aria-hidden="true"></div>
+      <div class="facts">
+        <div class="fact"><b>420</b><span>Empleados</span></div>
+        <div class="fact"><b>18</b><span>Años de trayectoria</span></div>
+        <div class="fact"><b>3</b><span>Provincias con sucursales</span></div>
+        <div class="fact"><b>10</b><span>Hallazgos del diagnóstico</span></div>
+      </div>
+      <div class="credits">
+        <div class="credit"><span>Materia</span><p>[Nombre de la materia]</p></div>
+        <div class="credit"><span>Docente</span><p>[Nombre del docente]</p></div>
+        <div class="credit"><span>Grupo</span><p>[N° de grupo · Integrantes: Apellido, Nombre]</p></div>
+        <div class="credit"><span>Fecha</span><p>Junio 2026</p></div>
+      </div>
+      <p class="hint">Navegá con ← → · barra espaciadora · deslizá en el celular</p>
+    </div>
+  </section>
+
+  <!-- ====== 2 · INTRODUCCIÓN ====== -->
+  <section class="slide" data-name="Introducción" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">01</span><h2>Introducción al caso de estudio</h2></div>
+        <span class="shead-note">Industria Tecnocar S.A.</span>
+      </header>
+      <div class="intro-grid">
+        <article class="card panel p-ink">
+          <h3>La empresa</h3>
+          <p><b>Industria Tecnocar S.A.</b> es una empresa argentina dedicada a la fabricación y comercialización de pequeños electrodomésticos, con <b>18 años de trayectoria</b> en el mercado.</p>
+          <div class="bignum"><b>420</b><span>Empleados distribuidos en seis unidades operativas</span></div>
+          <div class="units">
+            <span class="unit">Planta industrial</span>
+            <span class="unit">Centro logístico</span>
+            <span class="unit">Oficinas administrativas</span>
+            <span class="unit">Área comercial</span>
+            <span class="unit">Atención al cliente</span>
+            <span class="unit">Sucursales en 3 provincias</span>
+          </div>
+        </article>
+        <div class="intro-col">
+          <article class="card panel p-orange">
+            <h3>El disparador</h3>
+            <p>En los últimos <b>tres años</b> la empresa creció de forma acelerada por el aumento de las ventas y la apertura de nuevos mercados. Ese desarrollo comercial <b>no fue acompañado por una adecuada estructuración interna</b>: el área de RR.&nbsp;HH. se limitó a tareas administrativas básicas, sin participación en las decisiones estratégicas.</p>
+          </article>
+          <article class="card panel p-teal">
+            <h3>Nuestro rol como consultores</h3>
+            <p>Ante las problemáticas detectadas por la gerencia general —que ya afectan el funcionamiento, la productividad y el clima laboral— asumimos el rol de consultores para elaborar un <b>diagnóstico integral</b>: identificar los problemas y sus causas, vincularlos con el marco teórico y proponer <b>soluciones concretas y medidas preventivas</b>.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 3 · DIAGNÓSTICO GENERAL ====== -->
+  <section class="slide" data-name="Diagnóstico" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">02</span><h2>Diagnóstico general</h2></div>
+        <span class="shead-note">El problema de fondo</span>
+      </header>
+      <p class="thesis">Tecnocar creció en volumen operativo, pero no en <em class="hl">madurez organizacional</em>.</p>
+      <p class="thesis-sub">La empresa sigue gestionando a sus 420 empleados con las prácticas informales propias de sus inicios como organización familiar. Esa falta de profesionalización y de planificación en la gestión de personas genera ineficiencias sistémicas en toda la estructura del negocio.</p>
+      <div class="contrast">
+        <article class="card con con-up">
+          <h4>Lo que creció en 3 años</h4>
+          <ul>
+            <li><b>Ventas y mercados.</b> Aumento sostenido de las ventas y apertura de nuevos mercados.</li>
+            <li><b>Dotación.</b> 420 empleados en planta, logística, administración, área comercial y atención al cliente.</li>
+            <li><b>Presencia territorial.</b> Sucursales en tres provincias y dos nuevas aperturas proyectadas.</li>
+          </ul>
+        </article>
+        <article class="card con con-down">
+          <h4>Lo que no acompañó</h4>
+          <ul>
+            <li><b>Estructura.</b> Sin organigrama ni descripciones de puestos: los roles se definen de manera informal.</li>
+            <li><b>Gestión de personas.</b> RR.&nbsp;HH. reducido a lo administrativo, sin rol estratégico ni planificación.</li>
+            <li><b>Procesos y control.</b> Decisiones sin datos: no hay KPIs, auditorías ni políticas formales.</li>
+          </ul>
+        </article>
+      </div>
+      <p class="syscons"><b>Resultado →</b> ineficiencias sistémicas que impactan negativamente en el funcionamiento, la productividad y el clima laboral.</p>
+    </div>
+  </section>
+
+  <!-- ====== 4 · PROBLEMAS 01–05 ====== -->
+  <section class="slide" data-name="Problemas" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">03</span><h2>Problemas identificados</h2></div>
+        <span class="shead-note">Hallazgos 01–05 · de 10</span>
+      </header>
+      <div class="findings">
+        <article class="finding">
+          <span class="f-code">P-01</span>
+          <div class="f-body">
+            <h3>Estructura organizacional</h3>
+            <p>No existen descripciones de puestos ni un organigrama formal.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Funciones poco claras, superposición de tareas y conflictos constantes entre áreas.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-02</span>
+          <div class="f-body">
+            <h3>Planificación de capital humano</h3>
+            <p>El crecimiento se gestionó de forma improvisada, sin proyección de personal, incluso al abrir sucursales.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Áreas sobredimensionadas y otras en déficit, con exceso de horas extras.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-03</span>
+          <div class="f-body">
+            <h3>Reclutamiento y selección</h3>
+            <p>Se contrata por recomendación, sin perfiles definidos ni evaluación de competencias.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Alta rotación temprana del personal ingresante.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-04</span>
+          <div class="f-body">
+            <h3>Programas de inducción</h3>
+            <p>Los ingresantes comienzan a operar sin onboarding ni capacitación inicial.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Desorientación, baja productividad y mayor riesgo de accidentes.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-05</span>
+          <div class="f-body">
+            <h3>Legislación laboral</h3>
+            <p>Horas extras mal liquidadas y desconocimiento de los derechos del personal.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Riesgo de demandas y multas, y pérdida de confianza de los empleados.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 5 · PROBLEMAS 06–10 ====== -->
+  <section class="slide" data-name="Problemas" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">03</span><h2>Problemas identificados</h2></div>
+        <span class="shead-note">Hallazgos 06–10 · de 10</span>
+      </header>
+      <div class="findings">
+        <article class="finding">
+          <span class="f-code">P-06</span>
+          <div class="f-body">
+            <h3>Convenios colectivos</h3>
+            <p>Los mandos medios no están capacitados sobre el convenio colectivo aplicable.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Errores administrativos recurrentes y conflictos sindicales.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-07</span>
+          <div class="f-body">
+            <h3>Seguridad e higiene</h3>
+            <p>No hay política de prevención y faltan elementos de protección personal (EPP).</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Aumento de accidentes y ausentismo; exposición a clausuras y juicios.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-08</span>
+          <div class="f-body">
+            <h3>Discriminación laboral</h3>
+            <p>No existen políticas ni canales de denuncia frente a situaciones de discriminación.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Trato desigual, ambiente hostil y exposición legal para la empresa.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-09</span>
+          <div class="f-body">
+            <h3>Desvinculación y clima laboral</h3>
+            <p>Los despidos se ejecutan sin acompañamiento ni outplacement.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Miedo e incertidumbre, desmotivación y renuncias voluntarias.</p></div>
+        </article>
+        <article class="finding">
+          <span class="f-code">P-10</span>
+          <div class="f-body">
+            <h3>Auditoría y control de gestión</h3>
+            <p>No hay KPIs ni auditorías del área de RR.&nbsp;HH.</p>
+          </div>
+          <div class="f-impact"><span class="lab">Impacto</span><p>Decisiones subjetivas y sin medición de los resultados de la gestión.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 6 · PROPUESTAS · EJES 1–3 ====== -->
+  <section class="slide" data-name="Propuestas" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">04</span><h2>Propuestas de mejora</h2></div>
+        <span class="shead-note">Ejes 1–3 · de 6</span>
+      </header>
+      <p class="goal"><b>Objetivo:</b> transformar a RR.&nbsp;HH. de unidad administrativa en <b>socio estratégico</b> de Tecnocar.</p>
+      <div class="ejes">
+        <article class="card eje">
+          <div class="eje-head"><span class="eje-num">E1</span><h3>Estructuración y planificación organizacional</h3></div>
+          <div class="eje-acts">
+            <div class="act">
+              <span class="chip c-cor">Acción correctiva</span>
+              <p>Diseñar el organigrama actualizado y elaborar las descripciones formales de puestos para los 420 empleados.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-est">Propuesta estratégica</span>
+              <p>Planificar el capital humano para proyectar la dotación de las dos nuevas sucursales y evitar excesos o faltantes de personal.</p>
+            </div>
+          </div>
+        </article>
+        <article class="card eje">
+          <div class="eje-head"><span class="eje-num">E2</span><h3>Adquisición de talento y cultura</h3></div>
+          <div class="eje-acts">
+            <div class="act">
+              <span class="chip c-cor">Acción correctiva</span>
+              <p>Estandarizar el reclutamiento y la selección por competencias, eliminando las contrataciones informales.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-pre">Medida preventiva</span>
+              <p>Implementar un onboarding integral con capacitación en seguridad, procedimientos y cultura antes de comenzar a operar.</p>
+            </div>
+          </div>
+        </article>
+        <article class="card eje">
+          <div class="eje-head"><span class="eje-num">E3</span><h3>Gestión del desempeño y compensaciones</h3></div>
+          <div class="eje-acts">
+            <div class="act">
+              <span class="chip c-sol">Propuesta de solución</span>
+              <p>Crear un sistema de evaluación de desempeño con feedback 360° y líderes capacitados, para erradicar el favoritismo.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-est">Propuesta estratégica</span>
+              <p>Desarrollar una política de compensaciones con escalas transparentes y remuneración variable por objetivos, garantizando la equidad interna.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="legend">
+        <span class="lt">Tipos de medida:</span>
+        <span class="chip c-cor">Acción correctiva</span>
+        <span class="chip c-pre">Medida preventiva</span>
+        <span class="chip c-sol">Propuesta de solución</span>
+        <span class="chip c-est">Propuesta estratégica</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 7 · PROPUESTAS · EJES 4–6 ====== -->
+  <section class="slide" data-name="Propuestas" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">04</span><h2>Propuestas de mejora</h2></div>
+        <span class="shead-note">Ejes 4–6 · de 6</span>
+      </header>
+      <div class="ejes">
+        <article class="card eje">
+          <div class="eje-head"><span class="eje-num">E4</span><h3>Legal, relaciones laborales y seguridad</h3></div>
+          <div class="eje-acts">
+            <div class="act">
+              <span class="chip c-cor">Acción correctiva · urgente</span>
+              <p>Auditar de inmediato horas extras, descansos y vacaciones para regularizar incumplimientos y frenar reclamos.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-pre">Medida preventiva</span>
+              <p>Proveer los EPP faltantes en planta y mejorar la señalización.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-sol">Propuesta de solución</span>
+              <p>Capacitación obligatoria a supervisores sobre convenios colectivos y derechos laborales, para mejorar la relación con el sindicato.</p>
+            </div>
+          </div>
+        </article>
+        <article class="card eje">
+          <div class="eje-head"><span class="eje-num">E5</span><h3>Clima, comunicación y retención</h3></div>
+          <div class="eje-acts">
+            <div class="act">
+              <span class="chip c-cor">Acción correctiva</span>
+              <p>Establecer canales formales de comunicación interna para estandarizar la bajada de información.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-pre">Medida preventiva</span>
+              <p>Redactar un protocolo contra la discriminación laboral, con canales de denuncia anónimos y seguros.</p>
+            </div>
+            <div class="act">
+              <span class="chip c-est">Propuesta estratégica</span>
+              <p>Implementar outplacement y entrevistas de salida para profesionalizar las desvinculaciones y proteger el clima.</p>
+            </div>
+          </div>
+        </article>
+        <article class="card eje">
+          <div class="eje-head"><span class="eje-num">E6</span><h3>Auditoría y control de gestión</h3></div>
+          <div class="eje-acts">
+            <div class="act">
+              <span class="chip c-est">Propuesta estratégica</span>
+              <p>Diseñar un tablero de KPIs de RR.&nbsp;HH. con medición mensual: rotación, ausentismo, siniestralidad, costos laborales y efectividad de la capacitación.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="legend">
+        <span class="lt">Tipos de medida:</span>
+        <span class="chip c-cor">Acción correctiva</span>
+        <span class="chip c-pre">Medida preventiva</span>
+        <span class="chip c-sol">Propuesta de solución</span>
+        <span class="chip c-est">Propuesta estratégica</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 8 · PLAN DE ACCIÓN ====== -->
+  <section class="slide" data-name="Plan de acción" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <header class="shead">
+        <div class="shead-l"><span class="num">05</span><h2>Plan de acción</h2></div>
+        <span class="shead-note">12 meses · 3 fases</span>
+      </header>
+      <p class="plan-intro">No es viable implementar todas las mejoras en simultáneo: el cronograma prioriza primero la mitigación de los riesgos más altos.</p>
+      <div class="tl" aria-hidden="true">
+        <div class="tl-bar"><i class="bg1"></i><i class="bg2"></i><i class="bg3"></i></div>
+        <div class="tl-marks"><em>Mes 0</em><em>Mes 3</em><span class="last"><em>Mes 6</em><em>Mes 12</em></span></div>
+      </div>
+      <div class="phases">
+        <article class="card phase ph1">
+          <div class="phase-head">
+            <span class="ph-k">Fase 1 · Corto plazo · 1–3 meses</span>
+            <h3>Mitigación de riesgos urgentes</h3>
+          </div>
+          <ul>
+            <li><b>Seguridad e higiene.</b> Auditoría en planta, compra y entrega inmediata de EPP y capacitación básica en riesgos.</li>
+            <li><b>Regularización legal.</b> Revisión de liquidaciones (horas extras, vacaciones) para frenar denuncias y reclamos sindicales inminentes.</li>
+            <li><b>Comunicación directa.</b> Lanzamiento de canales formales (carteleras, correos oficiales) para frenar rumores.</li>
+          </ul>
+        </article>
+        <article class="card phase ph2">
+          <div class="phase-head">
+            <span class="ph-k">Fase 2 · Mediano plazo · 3–6 meses</span>
+            <h3>Ordenamiento y estructuración</h3>
+          </div>
+          <ul>
+            <li><b>Descripciones de puestos.</b> Relevamiento y redacción de funciones claras para eliminar la superposición de tareas.</li>
+            <li><b>Protocolos de ingreso y egreso.</b> Puesta en marcha de los procesos formales de selección, inducción y outplacement.</li>
+            <li><b>Capacitación de liderazgo.</b> Entrenamiento a supervisores en convenios colectivos, normativa laboral y comunicación.</li>
+          </ul>
+        </article>
+        <article class="card phase ph3">
+          <div class="phase-head">
+            <span class="ph-k">Fase 3 · Largo plazo · 6–12 meses</span>
+            <h3>Desarrollo estratégico</h3>
+          </div>
+          <ul>
+            <li><b>Desempeño y compensaciones.</b> Implementación de la evaluación de desempeño y la nueva estructura de remuneraciones e incentivos.</li>
+            <li><b>Planificación futura.</b> Definición de la dotación y reclutamiento para las dos nuevas sucursales proyectadas.</li>
+            <li><b>Tablero de control.</b> Activación completa de los KPIs y auditorías periódicas del área de RR.&nbsp;HH.</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 9 · CIERRE ====== -->
+  <section class="slide dark" data-name="Cierre" aria-roledescription="diapositiva">
+    <div class="slide-inner">
+      <p class="kicker">Cierre · Síntesis de la propuesta</p>
+      <h2 class="end-title">De unidad administrativa a <em class="hl">socio estratégico</em></h2>
+      <p class="end-sub">En 12 meses, el plan regulariza los riesgos legales y de seguridad, ordena la estructura y los procesos de personas, y convierte la gestión del capital humano en una ventaja competitiva para Tecnocar.</p>
+      <div class="stripe" aria-hidden="true"></div>
+      <p class="end-thanks">Gracias · ¿Preguntas?</p>
+      <p class="end-foot">Industria Tecnocar S.A. · Diagnóstico organizacional · [Grupo / Integrantes]</p>
+    </div>
+  </section>
+
+</main>
+
+<div class="hud">
+  <b id="counter">01 / 09</b>
+  <span class="sec" id="secname">Carátula</span>
+</div>
+<nav class="dots" id="dots" aria-label="Índice de diapositivas"></nav>
+<div class="navbtns">
+  <button class="nb" id="prev" type="button" aria-label="Diapositiva anterior">←</button>
+  <button class="nb" id="next" type="button" aria-label="Diapositiva siguiente">→</button>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dotsWrap = document.getElementById('dots');
+  var counter = document.getElementById('counter');
+  var secname = document.getElementById('secname');
+  var bar = document.getElementById('progress');
+  var cur = 0;
+
+  slides.forEach(function(s, idx){
+    var d = document.createElement('button');
+    d.className = 'dot';
+    d.type = 'button';
+    d.title = (idx + 1) + ' · ' + s.dataset.name;
+    d.setAttribute('aria-label', 'Ir a la diapositiva ' + (idx + 1) + ': ' + s.dataset.name);
+    d.addEventListener('click', function(){ go(idx); });
+    dotsWrap.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function pad(n){ return String(n).padStart(2, '0'); }
+
+  function go(n){
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, i){
+      s.classList.toggle('active', i === cur);
+      s.setAttribute('aria-hidden', i === cur ? 'false' : 'true');
+    });
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === cur); });
+    counter.textContent = pad(cur + 1) + ' / ' + pad(slides.length);
+    secname.textContent = slides[cur].dataset.name;
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+    document.body.classList.toggle('on-dark', slides[cur].classList.contains('dark'));
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch(e){}
+  }
+
+  document.getElementById('prev').addEventListener('click', function(){ go(cur - 1); });
+  document.getElementById('next').addEventListener('click', function(){ go(cur + 1); });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){ e.preventDefault(); go(cur + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(cur - 1); }
+    else if (e.key === ' ' && e.target === document.body){ e.preventDefault(); go(cur + 1); }
+    else if (e.key === 'Home'){ e.preventDefault(); go(0); }
+    else if (e.key === 'End'){ e.preventDefault(); go(slides.length - 1); }
+  });
+
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart', function(e){
+    tx = e.changedTouches[0].clientX;
+    ty = e.changedTouches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4){
+      if (dx < 0) { go(cur + 1); } else { go(cur - 1); }
+    }
+  }, { passive: true });
+
+  var h = parseInt((location.hash || '').replace('#', ''), 10);
+  go(!isNaN(h) && h >= 1 && h <= slides.length ? h - 1 : 0);
+})();
+</script>
+
+</body>
+</html>
